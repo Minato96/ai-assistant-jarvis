@@ -9,6 +9,7 @@ import sys
 from langchain_core.messages import HumanMessage
 
 from jarvis.config import load_settings
+from jarvis.db import init_db
 from jarvis.graph import build_graph
 from jarvis.memory import build_memory
 
@@ -19,6 +20,7 @@ def main() -> None:
     settings = load_settings()
     print(f"Model: {settings.model_name}")
 
+    init_db()
     memory = build_memory(settings)
     graph = build_graph(settings, memory)
 

@@ -12,6 +12,7 @@ from telegram.error import BadRequest
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 from .config import Settings, load_settings
+from .db import init_db
 from .graph import build_graph
 from .memory import build_memory
 
@@ -73,6 +74,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 def run() -> None:
     logging.basicConfig(level=logging.INFO)
     settings = load_settings()
+    init_db()
     memory = build_memory(settings)
     graph = build_graph(settings, memory)
 
