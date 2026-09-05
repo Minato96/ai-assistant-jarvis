@@ -14,6 +14,11 @@ dependencies = [
     "python-dotenv>=1.2.3",
     "python-telegram-bot>=22.8",
     "sentence-transformers>=6.0.1",
+    # Only needed transitively (via sentence-transformers), but must be listed
+    # directly for [tool.uv.sources] below to apply — uv only honors source
+    # overrides for direct dependencies. Without this, uv resolves the default
+    # CUDA build (pulls in several GB of nvidia-* packages) even on a machine
+    # with no GPU use case for this embedder.
     "torch",
 ]
 
@@ -24,6 +29,7 @@ jarvis = "jarvis:main"
 requires = ["uv_build>=0.12.3,<0.13.0"]
 build-backend = "uv_build"
 
+# Force CPU-only torch (see comment on the "torch" dependency above).
 [tool.uv.sources]
 torch = [{ index = "pytorch-cpu" }]
 
