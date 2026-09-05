@@ -7,6 +7,8 @@ LangGraph's tool-calling loop instead of one prompt that does everything.
 """
 from __future__ import annotations
 
+from datetime import datetime
+
 from langchain_core.tools import tool
 
 from .calendar_tools import CALENDAR_TOOLS
@@ -115,6 +117,8 @@ def update_task(
     if done is not None:
         fields.append("done = ?")
         values.append(int(done))
+        fields.append("completed_at = ?")
+        values.append(datetime.now().isoformat() if done else None)
     if not fields:
         return {"updated": False, "reason": "no fields provided"}
     values.append(task_id)

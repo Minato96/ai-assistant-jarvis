@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS tasks (
     title TEXT NOT NULL,
     due_date TEXT,
     done INTEGER NOT NULL DEFAULT 0,
+    completed_at TEXT,
+    outcome TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -50,7 +52,27 @@ def get_connection() -> sqlite3.Connection:
 def init_db() -> None:
     with get_connection() as conn:
         conn.executescript(SCHEMA)
+        # Migrate existing DBs created before these columns existed.
+        existing = {row["name"] for row in conn.execute("PRAGMA table_info(tasks)")}
+        if "completed_at" not in existing:
+            conn.execute("ALTER TABLE tasks ADD COLUMN completed_at TEXT")
+        if "outcome" not in existing:
+            conn.execute("ALTER TABLE tasks ADD COLUMN outcome TEXT")
 
 
 def rows_to_dicts(rows: list[sqlite3.Row]) -> list[dict]:
     return [dict(row) for row in rows]
+
+
+def log_task_outcome(task_id: int, outcome: str) -> None:
+    """Set a task's outcome directly — called from a Telegram button tap, not
+    the LLM. Logging how something went is a fixed action, not a judgment
+    call, so it doesn't need to go through the agent loop."""
+    with get_connection() as conn:
+        conn.execute("UPDATE tasks SET outcome = ? WHERE id = ?", (outcome, task_id))
+
+
+def get_task(task_id: int) -> dict | None:
+    with get_connection() as conn:
+        row = conn.execute("SELECT * FROM tasks WHERE id = ?", (task_id,)).fetchone()
+        return dict(row) if row else None
