@@ -1,5 +1,17 @@
 # Jarvis
 
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![uv](https://img.shields.io/badge/uv-package_manager-DE5FE9?logo=uv&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-1.2-1C3C3C?logo=langgraph&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-1.6-1C3C3C?logo=langchain&logoColor=white)
+![Mem0](https://img.shields.io/badge/Mem0-2.0-6E56CF)
+![Chroma](https://img.shields.io/badge/Chroma-1.5-FF6F61)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white)
+![Google Calendar](https://img.shields.io/badge/Google_Calendar-4285F4?logo=googlecalendar&logoColor=white)
+![Telegram](https://img.shields.io/badge/Telegram-26A5E4?logo=telegram&logoColor=white)
+![DeepSeek](https://img.shields.io/badge/DeepSeek-536AF5?logo=deepseek&logoColor=white)
+![OpenRouter](https://img.shields.io/badge/OpenRouter-6467F2?logo=openrouter&logoColor=white)
+
 A personal AI assistant over Telegram, built to act as a coach and friend — not just a chatbot that answers questions, but one that tracks real commitments, pushes back when something doesn't add up, and reasons about tradeoffs instead of rubber-stamping whatever's asked.
 
 Built for a single user (no multi-tenant/auth — this is intentionally not a SaaS product) on LangGraph, Mem0, and a provider-agnostic LLM backend.
