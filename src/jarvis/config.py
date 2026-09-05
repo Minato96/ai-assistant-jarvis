@@ -24,6 +24,7 @@ class Settings:
     llm_api_key: str
     llm_base_url: str
     model_name: str
+    timezone: str
     allowed_telegram_user_id: int | None
 
 
@@ -34,5 +35,6 @@ def load_settings() -> Settings:
         llm_api_key=_require("LLM_API_KEY"),
         llm_base_url=os.getenv("LLM_BASE_URL", "https://api.deepseek.com"),
         model_name=os.getenv("MODEL_NAME", "deepseek-chat"),
+        timezone=_require("TIMEZONE"),
         allowed_telegram_user_id=int(allowed_id_raw) if allowed_id_raw else None,
     )

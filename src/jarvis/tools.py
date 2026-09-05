@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from langchain_core.tools import tool
 
+from .calendar_tools import CALENDAR_TOOLS
 from .db import get_connection, rows_to_dicts
 
 
@@ -209,4 +210,5 @@ ALL_TOOLS = [
     list_routine_blocks,
     update_routine_block,
     delete_routine_block,
+    *CALENDAR_TOOLS,
 ]
