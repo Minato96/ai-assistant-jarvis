@@ -1,0 +1,33 @@
+[project]
+name = "jarvis"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Minato96", email = "charanteja1415@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "chromadb>=1.5.9",
+    "langchain-openai>=1.6.0",
+    "langgraph>=1.2.11",
+    "mem0ai>=2.0.20",
+    "python-dotenv>=1.2.3",
+    "python-telegram-bot>=22.8",
+    "sentence-transformers>=6.0.1",
+    "torch",
+]
+
+[project.scripts]
+jarvis = "jarvis:main"
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
