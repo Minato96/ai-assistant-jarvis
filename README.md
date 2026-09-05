@@ -16,7 +16,7 @@ A personal AI assistant over Telegram, built to act as a coach and friend — no
 
 Built for a single user (no multi-tenant/auth — this is intentionally not a SaaS product) on LangGraph, Mem0, and a provider-agnostic LLM backend.
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the full end-to-end request flow, an honest component-by-component status against the original plan, and what's enforced in code versus what's prompt-level judgment.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the full end-to-end request flow, an honest component-by-component status against the original plan, and what's enforced in code versus what's prompt-level judgment. See [ROADMAP.md](ROADMAP.md) for what's next and open design questions. See [SETUP.md](SETUP.md) for setting this up on a fresh machine.
 
 ## Stack
 
@@ -61,36 +61,4 @@ The agent itself is a LangGraph tool-calling loop (`agent` ↔ `tools`), not a s
 
 ## Setup
 
-Requires [uv](https://docs.astral.sh/uv/).
-
-```bash
-uv sync
-cp .env.example .env
-```
-
-Fill in `.env`:
-
-| Variable | What it is |
-|---|---|
-| `TELEGRAM_BOT_TOKEN` | From [@BotFather](https://t.me/BotFather) |
-| `LLM_API_KEY` / `LLM_BASE_URL` / `MODEL_NAME` | Any OpenAI-compatible endpoint (DeepSeek, OpenRouter, etc.) |
-| `TIMEZONE` | IANA timezone, e.g. `Asia/Kolkata` |
-| `ALLOWED_TELEGRAM_USER_ID` | Locks the bot to one Telegram user (leave blank on first run — the bot logs your ID when it sees a message from an unrecognized sender) |
-
-For Calendar: create a Google Cloud project, enable the Calendar API, create an OAuth Desktop-app client, save the credentials JSON as `data/google_credentials.json`, then run the one-time interactive authorization:
-
-```bash
-uv run python scripts/authorize_calendar.py
-```
-
-Run the bot:
-
-```bash
-uv run jarvis
-```
-
-Or sanity-check the graph without Telegram:
-
-```bash
-uv run python scripts/smoke_test.py "some message"
-```
+See [SETUP.md](SETUP.md) for full setup instructions, including Fedora system prerequisites and how to restore a data backup on a new machine.
