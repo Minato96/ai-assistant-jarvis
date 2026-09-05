@@ -4,6 +4,8 @@ A personal AI assistant over Telegram, built to act as a coach and friend — no
 
 Built for a single user (no multi-tenant/auth — this is intentionally not a SaaS product) on LangGraph, Mem0, and a provider-agnostic LLM backend.
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the full end-to-end request flow, an honest component-by-component status against the original plan, and what's enforced in code versus what's prompt-level judgment.
+
 ## Stack
 
 | | |
