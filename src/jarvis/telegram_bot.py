@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import json
 import logging
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Message, Update
@@ -27,11 +29,21 @@ from telegram.ext import (
 )
 
 from .config import Settings, load_settings
-from .db import init_db, log_task_outcome
+from .db import get_task, init_db, log_task_outcome
 from .graph import build_graph
 from .memory import build_memory
 
 logger = logging.getLogger("jarvis.telegram")
+
+
+def _timestamped(text: str, settings: Settings) -> str:
+    """Tag a message with when it was actually sent, so the model can see
+    real elapsed time between turns instead of treating a whole conversation
+    as if it happened in one instant (the agent node also injects the
+    *current* time each turn — this is what lets it compute gaps *between*
+    messages, e.g. "left at 3:30, back at 6:30" -> ~3 hours passed)."""
+    now = datetime.now(ZoneInfo(settings.timezone))
+    return f"[{now.strftime('%a %I:%M %p')}] {text}"
 
 # Deliberately about *focus quality*, not generic sentiment — that's the
 # actual signal the pattern-mining work needs (e.g. "distracted after a
@@ -119,6 +131,17 @@ async def reply_formatted(
         await message.reply_text(text, reply_markup=reply_markup)
 
 
+async def send_formatted(bot, chat_id: int, text: str) -> None:
+    """Same Markdown-with-fallback behavior as reply_formatted, for messages
+    sent outside of replying to a specific incoming message (e.g. a
+    button-triggered follow-up)."""
+    try:
+        await bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.MARKDOWN)
+    except BadRequest:
+        logger.warning("Message wasn't valid Markdown; sending as plain text")
+        await bot.send_message(chat_id=chat_id, text=text)
+
+
 def _is_authorized(settings: Settings, user) -> bool:
     if settings.allowed_telegram_user_id is None:
         logger.warning(
@@ -153,7 +176,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     await context.bot.send_chat_action(chat_id=chat.id, action="typing")
     result = graph.invoke(
-        {"messages": [HumanMessage(content=update.message.text)], "user_id": thread_id},
+        {
+            "messages": [HumanMessage(content=_timestamped(update.message.text, settings))],
+            "user_id": thread_id,
+        },
         config={"configurable": {"thread_id": thread_id}},
     )
     reply = result["messages"][-1].content
@@ -173,10 +199,28 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     kind, *rest = query.data.split("|")
 
     if kind == "outcome":
-        task_id, value = rest
-        log_task_outcome(int(task_id), value)
+        task_id_str, value = rest
+        task_id = int(task_id_str)
+        log_task_outcome(task_id, value)
         base = query.message.text or ""
         await query.edit_message_text(f"{base}\n\nLogged: {OUTCOME_LABELS[value]}")
+
+        if value in ("distracted", "blocked"):
+            task = get_task(task_id)
+            title = task["title"] if task else "that"
+            graph = context.bot_data["graph"]
+            thread_id = str(query.message.chat_id)
+            prompt = _timestamped(
+                f"(I just logged '{title}' as {OUTCOME_LABELS[value]} — ask me what "
+                "happened, the way you'd actually ask someone you know, not a form.)",
+                settings,
+            )
+            await context.bot.send_chat_action(chat_id=query.message.chat_id, action="typing")
+            result = graph.invoke(
+                {"messages": [HumanMessage(content=prompt)], "user_id": thread_id},
+                config={"configurable": {"thread_id": thread_id}},
+            )
+            await send_formatted(context.bot, query.message.chat_id, result["messages"][-1].content)
     elif kind == "cal":
         action, _event_id = rest
         await query.edit_message_reply_markup(reply_markup=None)
