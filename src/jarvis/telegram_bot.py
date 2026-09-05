@@ -33,7 +33,17 @@ from .memory import build_memory
 
 logger = logging.getLogger("jarvis.telegram")
 
-OUTCOME_LABELS = {"good": "went well 👍", "meh": "okay 😐", "bad": "didn't go well 👎"}
+# Deliberately about *focus quality*, not generic sentiment — that's the
+# actual signal the pattern-mining work needs (e.g. "distracted after a
+# social evening" vs "focused right after a workout"). A tap stays low-
+# friction; anything richer than this comes from just telling Jarvis in
+# chat, which Mem0 already picks up.
+OUTCOME_LABELS = {
+    "focused": "🎯 Focused",
+    "okay": "🙂 Okay",
+    "distracted": "😵 Distracted",
+    "blocked": "🚫 Couldn't start",
+}
 
 
 def _tool_result(messages: list, call_id: str) -> dict | None:
@@ -77,9 +87,14 @@ def _build_reply_markup(messages: list) -> InlineKeyboardMarkup | None:
     for task_id in _find_completed_task_ids(messages):
         rows.append(
             [
-                InlineKeyboardButton("👍 Went well", callback_data=f"outcome|{task_id}|good"),
-                InlineKeyboardButton("😐 Okay", callback_data=f"outcome|{task_id}|meh"),
-                InlineKeyboardButton("👎 Didn't focus", callback_data=f"outcome|{task_id}|bad"),
+                InlineKeyboardButton(OUTCOME_LABELS["focused"], callback_data=f"outcome|{task_id}|focused"),
+                InlineKeyboardButton(OUTCOME_LABELS["okay"], callback_data=f"outcome|{task_id}|okay"),
+            ]
+        )
+        rows.append(
+            [
+                InlineKeyboardButton(OUTCOME_LABELS["distracted"], callback_data=f"outcome|{task_id}|distracted"),
+                InlineKeyboardButton(OUTCOME_LABELS["blocked"], callback_data=f"outcome|{task_id}|blocked"),
             ]
         )
     for event in _find_created_events(messages):
