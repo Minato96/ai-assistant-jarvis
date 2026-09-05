@@ -4,6 +4,18 @@ A personal AI assistant over Telegram, built to act as a coach and friend — no
 
 Built for a single user (no multi-tenant/auth — this is intentionally not a SaaS product) on LangGraph, Mem0, and a provider-agnostic LLM backend.
 
+## Stack
+
+| | |
+|---|---|
+| Runtime | Python 3.12, [uv](https://docs.astral.sh/uv/) 0.12 |
+| Orchestration | [LangGraph](https://github.com/langchain-ai/langgraph) 1.2 |
+| LLM client | [LangChain OpenAI](https://github.com/langchain-ai/langchain) 1.6 (provider-agnostic — any OpenAI-compatible endpoint) |
+| Long-term memory | [Mem0](https://github.com/mem0ai/mem0) 2.0, local — [Chroma](https://github.com/chroma-core/chroma) 1.5 vector store + [sentence-transformers](https://github.com/UKPLab/sentence-transformers) 6.0 (CPU-only build) |
+| Structured store | SQLite (stdlib) |
+| Calendar | [google-api-python-client](https://github.com/googleapis/google-api-python-client) 2.200, OAuth2 |
+| Chat interface | [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) 22.8 |
+
 ## What it actually does right now
 
 - **Telegram front door** — talk to it like any other chat. Long-polling bot, per-chat conversation state.
